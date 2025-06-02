@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 
 router = Router()
 
-FRONTEND_URL = "localhost:3000" # to move somewhere else
+FRONTEND_URL = "localhost:5173" # to move somewhere else
 
 
 class DecisionSchemaIn(ModelSchema):

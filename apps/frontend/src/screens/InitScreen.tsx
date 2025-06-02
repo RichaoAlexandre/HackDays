@@ -3,23 +3,39 @@ import NumberInput from "../components/NumberInput"
 
 export const InitScreen = () => {
     const [formData, setFormData] = useState({
-      decisionTitle: '',
-      decisionContext: '',
-      hours: '',
-      minutes: '', 
-      participants: ''
+      title: '',
+      context: '',
+      duration: 0,
+      number_of_participants: ''
     })
   
-    const handleInputChange = (field: string, value: string) => {
+    const handleInputChange = (field: string, value: string | number) => {
       setFormData(prev => ({
         ...prev,
         [field]: value
       }))
     }
+
+    const handleDurationChange = (hours: string, minutes: string) => {
+      // Convert hours and minutes to total minutes for duration
+      const totalMinutes = (Number(hours) * 60) + Number(minutes)
+      handleInputChange('duration', totalMinutes)
+    }
   
-    const handleNext = () => {
-      // Handle form submission
-      console.log('Form data:', formData)
+    const handleNext = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/decision/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        })
+        const data = await response.json()
+        console.log('Success:', data)
+      } catch (error) {
+        console.error('Error:', error)
+      }
     }
   
     return (
@@ -37,15 +53,15 @@ export const InitScreen = () => {
           <form className="space-y-4 md:space-y-6">
             {/* Decision Title */}
             <div>
-              <label htmlFor="decisionTitle" className="block text-sm font-medium text-gray-900 mb-1 md:mb-2">
+              <label htmlFor="title" className="block text-sm font-medium text-gray-900 mb-1 md:mb-2">
                 Decision title <span className="text-red-500">*</span>
               </label>
               <input
-                id="decisionTitle"
+                id="title"
                 type="text"
                 placeholder="Decision title"
-                value={formData.decisionTitle}
-                onChange={(e) => handleInputChange('decisionTitle', e.target.value)}
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
                 className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <p className="text-xs md:text-sm text-gray-500 mt-1">Enter your decision title</p>
@@ -53,15 +69,15 @@ export const InitScreen = () => {
   
             {/* Decision Context */}
             <div>
-              <label htmlFor="decisionContext" className="block text-sm font-medium text-gray-900 mb-1 md:mb-2">
+              <label htmlFor="context" className="block text-sm font-medium text-gray-900 mb-1 md:mb-2">
                 Decision context <span className="text-red-500">*</span>
               </label>
               <textarea
-                id="decisionContext"
+                id="context"
                 rows={3}
                 placeholder="The decision context could focus on constraints that participants need to take into account for their proposals"
-                value={formData.decisionContext}
-                onChange={(e) => handleInputChange('decisionContext', e.target.value)}
+                value={formData.context}
+                onChange={(e) => handleInputChange('context', e.target.value)}
                 className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               />
               <p className="text-xs md:text-sm text-gray-500 mt-1">Enter your decision context</p>
@@ -78,8 +94,8 @@ export const InitScreen = () => {
                     Hours
                   </label>
                   <NumberInput
-                    value={formData.hours === '' ? '' : Number(formData.hours)}
-                    onChange={(value) => handleInputChange('hours', value.toString())}
+                    value={Math.floor(formData.duration / 60)}
+                    onChange={(value) => handleDurationChange(value.toString(), (formData.duration % 60).toString())}
                     placeholder="Hours"
                     min={0}
                     max={23}
@@ -91,8 +107,8 @@ export const InitScreen = () => {
                     Minutes
                   </label>
                   <NumberInput
-                    value={formData.minutes === '' ? '' : Number(formData.minutes)}
-                    onChange={(value) => handleInputChange('minutes', value.toString())}
+                    value={formData.duration % 60}
+                    onChange={(value) => handleDurationChange(Math.floor(formData.duration / 60).toString(), value.toString())}
                     placeholder="Minutes"
                     min={0}
                     max={59}
@@ -103,15 +119,15 @@ export const InitScreen = () => {
   
             {/* Number of Participants */}
             <div>
-              <label htmlFor="participants" className="block text-sm font-medium text-gray-900 mb-1 md:mb-2">
+              <label htmlFor="number_of_participants" className="block text-sm font-medium text-gray-900 mb-1 md:mb-2">
                 Number of participants <span className="text-red-500">*</span>
               </label>
               <input
-                id="participants"
+                id="number_of_participants"
                 type="number"
                 placeholder="Number of participants"
-                value={formData.participants}
-                onChange={(e) => handleInputChange('participants', e.target.value)}
+                value={formData.number_of_participants}
+                onChange={(e) => handleInputChange('number_of_participants', e.target.value)}
                 className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <p className="text-xs md:text-sm text-gray-500 mt-1">Enter number of participants</p>
