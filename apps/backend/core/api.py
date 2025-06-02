@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 
 router = Router()
 
-FRONTEND_URL = "localhost:3000" # to move somewhere else
+FRONTEND_URL = "localhost:5173" # to move somewhere else
 
 
 class DecisionSchemaIn(ModelSchema):
@@ -19,6 +19,19 @@ class DecisionSchemaOut(ModelSchema):
     class Meta:
         model = DecisionToMake
         fields = ["id", "duration", "number_of_participants", "title", "context"]
+
+    @classmethod
+    def from_instance(cls, instance):
+        # Helper to build the output schema with the link
+        data = {
+            "id": instance.id,
+            "duration": instance.duration,
+            "number_of_participants": instance.number_of_participants,
+            "title": instance.title,
+            "context": instance.context,
+            "link": f"{FRONTEND_URL}/{instance.id}"
+        }
+        return cls(**data)
 
 
 @router.post(
