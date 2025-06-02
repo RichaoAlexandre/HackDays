@@ -1,6 +1,7 @@
 from ninja import Router, ModelSchema
-from .models import Decision
 from django.shortcuts import get_object_or_404
+
+from .models import Decision
 
 router = Router()
 
