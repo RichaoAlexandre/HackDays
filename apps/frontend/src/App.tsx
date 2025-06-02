@@ -2,10 +2,10 @@ import { useState } from 'react'
 import './App.css'
 import { WelcomeScreen } from './screens/WelcomeScreen'
 import { InitScreen } from './screens/InitScreen'
-import { ConfirmationScreen } from './screens/ConfirmationScreen'
 import { JoinScreen } from './screens/JoinScreen'
 import { ProposalScreen } from './screens/ProposalScreen'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
+import { StartScreen } from './screens/StartScreen'
 
 function App() {
   const [formData, setFormData] = useState({
@@ -23,7 +23,7 @@ function App() {
       <Routes>
         <Route path="/welcome" element={<WelcomeScreen />} />
         <Route path="/init" element={<InitScreen />} />
-        <Route path="/confirm" element={<ConfirmationScreen {...formData} />} />
+        <Route path="/start" element={<StartScreen />} />
         <Route path="/join" element={<JoinScreen />} />
         <Route path="/propose" element={<ProposalScreen />} />
         <Route path="*" element={<Navigate to="/welcome" replace />} />

@@ -1,6 +1,7 @@
 import { useState } from "react"
 import NumberInput from "../components/NumberInput"
 import { SpecCard } from "../components/SpecCard"
+import { useNavigate } from "react-router"
 
 type FormData = {
   title: string
@@ -169,6 +170,9 @@ export const InitScreen = () => {
     setShowSpecCard(true)
   }
 
+
+  const navigate = useNavigate();
+
   const handleSubmitSpecCard = async () => {
     try {
       const response = await fetch('http://localhost:8000/api/decision/', {
@@ -177,11 +181,12 @@ export const InitScreen = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData)
-      })
-      const data = await response.json()
-      console.log('Success:', data)
+      });
+      const data = await response.json();
+
+      navigate('/start', { state: { shareLink: data.link } });
     } catch (error) {
-      console.error('Error:', error)
+      console.error('Error:', error);
     }
   }
 
@@ -201,18 +206,16 @@ export const InitScreen = () => {
             onDurationChange={handleDurationChange}
             onNext={handleNext}
           />
-        ) : (
+        ) : 
           <SpecCard
             decisionTitle={formData.title}
             decisionContext={formData.context}
             duration={getDurationObj(formData.duration)}
             participants={formData.number_of_participants}
             handleCancel={() => setShowSpecCard(false)}
-            handleSubmit={handleSubmitSpecCard}
+            handleSubmit={handleSubmitSpecCard}/
           >
-            {/* Not used, but if you want to pass children */}
-          </SpecCard>
-        )}
+        }
       </div>
     </div>
   )

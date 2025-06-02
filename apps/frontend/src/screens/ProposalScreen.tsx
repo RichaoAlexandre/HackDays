@@ -18,7 +18,6 @@ export const ProposalScreen = () => {
             decisionContext="Lorem ipsum dolor sit amet consectetur. Tempus et non vel egestas. Sit vel commodo nibh ullamcorper dolor."
             duration={{ hours: 1, minutes: 30 }}
             participants={6}
-            displayButtons={false}
           />
         </div>
 
