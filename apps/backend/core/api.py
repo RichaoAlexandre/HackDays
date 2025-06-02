@@ -1,15 +1,13 @@
 from ninja import Router, ModelSchema
-from .models import DecisionToMake
+from .models import Decision
 from django.shortcuts import get_object_or_404
 
 router = Router()
 
-FRONTEND_URL = "localhost:5173" # to move somewhere else
-
 
 class DecisionSchemaIn(ModelSchema):
     class Meta:
-        model = DecisionToMake
+        model = Decision
         fields = ["duration", "number_of_participants", "title", "context"]
 
 
@@ -17,7 +15,7 @@ class DecisionSchemaOut(ModelSchema):
     link: str
 
     class Meta:
-        model = DecisionToMake
+        model = Decision
         fields = ["id", "duration", "number_of_participants", "title", "context"]
 
     @classmethod
@@ -29,7 +27,7 @@ class DecisionSchemaOut(ModelSchema):
             "number_of_participants": instance.number_of_participants,
             "title": instance.title,
             "context": instance.context,
-            "link": f"{FRONTEND_URL}/decision/{instance.id}"
+            "link": instance.link,
         }
         return cls(**data)
 
@@ -39,7 +37,7 @@ class DecisionSchemaOut(ModelSchema):
     response=DecisionSchemaOut
 )
 def decision_creation(request, payload: DecisionSchemaIn):
-    decision = DecisionToMake.objects.create(**payload.dict())
+    decision = Decision.objects.create(**payload.dict())
     return decision
 
 @router.get(
@@ -47,4 +45,4 @@ def decision_creation(request, payload: DecisionSchemaIn):
     response=DecisionSchemaOut
 )
 def decision_details(request, id: int):
-    return get_object_or_404(DecisionToMake, id=id)
+    return get_object_or_404(Decision, id=id)
