@@ -48,14 +48,14 @@ export const SpecCard = ({ decisionTitle, decisionContext, duration, participant
             {displayButtons && <div className="flex gap-4 pt-4">
                 <button
                     type="button"
-                    className="flex-1 px-8 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                    className="flex-1 px-8 py-3 border border-black rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
                 >
                     Go back
                 </button>
                 <button
                     type="button"
                     color="black"
-                    className="flex-1 px-8 py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                    className="text-white bg-black flex-1 px-8 py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
                 >
                     Generate workshop link
                 </button>

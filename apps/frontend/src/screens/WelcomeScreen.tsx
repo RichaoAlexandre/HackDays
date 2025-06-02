@@ -5,7 +5,7 @@ export const WelcomeScreen = () => {
         <p className="text-center max-w-2xl mb-12 text-gray-600">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
         </p>
-        <button className="bg-black px-8 py-3 rounded-lg">
+        <button className="bg-black px-8 py-3 rounded-lg text-white">
           Start
         </button>
       </div>

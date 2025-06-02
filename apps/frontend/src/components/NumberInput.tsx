@@ -30,7 +30,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   };
 
   return (
-    <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 bg-white w-full max-w-md relative" style={{ minHeight: 64 }}>
+    <div className="flex items-center border border-gray-300 rounded-xl px-4 bg-white w-full max-w-md relative min-h-10" >
       <input
         type="number"
         value={value}
@@ -39,7 +39,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
         min={min}
         max={max}
         step={step}
-        className="flex-1 text-lg text-gray-800 bg-transparent outline-none border-none placeholder:text-gray-700"
+        className="flex-1 text-sm text-gray-800 bg-transparent outline-none border-none placeholder:text-gray-700"
         style={{ appearance: "none" }}
       />
     </div>

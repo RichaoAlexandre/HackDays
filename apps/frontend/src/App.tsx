@@ -4,6 +4,7 @@ import { WelcomeScreen } from './screens/WelcomeScreen'
 import { InitScreen } from './screens/InitScreen'
 import { ConfirmationScreen } from './screens/ConfirmationScreen'
 import { JoinScreen } from './screens/JoinScreen'
+import { ProposalScreen } from './screens/ProposalScreen'
 
 function App() {
   const [step, setStep] = useState(0)
@@ -26,11 +27,12 @@ function App() {
   }
 
   return (
-    <div className="relative">
+    <div>
       {step === 0 && <WelcomeScreen />}
       {step === 1 && <InitScreen />}
       {step === 2 && <ConfirmationScreen {...formData} />}
       {step === 3 && <JoinScreen />}
+      {step === 4 && <ProposalScreen />}
       <div className="fixed bottom-8 right-8 flex gap-4">
         {step > 0 && (
           <button 
@@ -42,7 +44,7 @@ function App() {
             </svg>
           </button>
         )}
-        {step < 3 && (
+        {step < 4 && (
           <button 
             onClick={handleNext}
             className="p-2 rounded-full bg-gray-200 hover:bg-gray-300"
@@ -56,6 +58,5 @@ function App() {
     </div>
   )
 }
-
 
 export default App
