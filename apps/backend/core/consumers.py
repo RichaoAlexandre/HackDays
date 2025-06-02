@@ -89,3 +89,112 @@ class DecisionStepConsumer(AsyncWebsocketConsumer):
         except Decision.DoesNotExist:
             return None
         return instance
+    
+
+class VoteConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.instance_id = self.scope["url_route"]["kwargs"]["instance_id"]
+        self.group_name = f"instance_vote_{self.instance_id}"
+
+        await self.channel_layer.group_add(
+            self.group_name,
+            self.channel_name
+        )
+        await self.accept()
+
+        # If first connection, we send states of vote to user
+        instance = await self._get_instance(self.instance_id)
+        if instance:
+            votes = await self._get_votes(self.instance_id)
+            data = {
+                "type": "vote.list",
+                "votes": votes,
+            }
+            # Envoyer au client
+            await self.send(text_data=json.dumps(data))
+
+            proposal_scores = await self._get_proposal_scores(self.instance_id)
+            data = {
+                "type": "proposal.score",
+                "proposal_scores": proposal_scores,
+            }
+            # Envoyer au client
+            await self.send(text_data=json.dumps(data))
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name
+        )
+
+    async def receive(self, text_data=None, bytes_data=None):
+        pass
+
+    async def vote_list(self, event):
+        votes = event["votes"]
+        await self.send(text_data=json.dumps({
+            "type": "vote.update",
+            "votes": votes,
+        }))
+
+    async def vote_update(self, event):
+        vote = event["vote"]
+        proposal_id = event["proposal_id"]
+        await self.send(text_data=json.dumps({
+            "type": "vote.update",
+            "vote": {
+                "proposal_id": vote.proposal.id,
+                "type": vote.type,
+                "comment": vote.comment,
+                "proposal_score": await self._get_proposal_score(proposal_id)
+            },
+        }))
+
+    
+    @database_sync_to_async
+    def _get_instance(self, instance_id):
+        from .models import Decision
+        try:
+            instance = Decision.objects.get(pk=instance_id)
+        except Decision.DoesNotExist:
+            return None
+        return instance
+
+    
+    @database_sync_to_async
+    def _get_votes(self, instance_id):
+        from .models import Vote
+        votes = Vote.objects.filter(
+            proposal__decision__id=instance_id,
+        )
+        result = []
+        for vote in votes:
+            result.append(
+                {
+                    "proposal_id": vote.proposal.id,
+                    "type": vote.type,
+                    "comment": vote.comment,
+                    "proposal_score": vote.proposal.score
+                }
+            )
+        return result
+    
+    @database_sync_to_async
+    def _get_proposal_score(self, proposal_id: int):
+        from .models import Proposal
+        try:
+            instance = Proposal.objects.get(pk=proposal_id)
+        except Proposal.DoesNotExist:
+            return 0
+        return instance.score
+    
+    @database_sync_to_async
+    def _get_proposal_scores(self, instance_id: int):
+        from .models import Proposal
+        scores = []
+        for prop in Proposal.objects.filter(decision__id=instance_id):
+            scores.append({
+                "proposal_id": prop.id,
+                "score": prop.score
+            })
+        return scores
