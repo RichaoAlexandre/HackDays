@@ -1,5 +1,4 @@
 from ninja import Router, ModelSchema, Schema
-from .models import DecisionToMake
 from django.shortcuts import get_object_or_404
 from typing import List, Dict
 import json
@@ -54,7 +53,7 @@ def decision_creation(request, payload: DecisionSchemaIn):
     response=DecisionSchemaOut
 )
 def decision_details(request, id: int):
-    return get_object_or_404(DecisionToMake, id=id)
+    return get_object_or_404(Decision, id=id)
 
 MODEL_NAME = "albert-small"  
 client = OpenAI(
