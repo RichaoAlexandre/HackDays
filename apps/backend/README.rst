@@ -1,6 +1,8 @@
 
 ## Quickstart
 
+Create a .env file with ALBERT_API_KEY to make /shorten_choices work.
+
 ```bash
 NAME_ENV=venv
 

@@ -3,3 +3,5 @@ channels[daphne]
 channels_redis
 django-ninja
 django-cors-headers
+openai
+dotenv
