@@ -27,10 +27,7 @@ class DecisionSchemaOut(ModelSchema):
 )
 def decision_creation(request, payload: DecisionSchemaIn):
     decision = DecisionToMake.objects.create(**payload.dict())
-    return {
-        "id": decision.id,
-        "link": f"{FRONTEND_URL}/{decision.id}"
-    }
+    return decision
 
 @router.get(
     "decision/{id}/",
