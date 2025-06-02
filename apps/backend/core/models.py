@@ -44,9 +44,20 @@ class Decision(models.Model):
     number_of_participants = models.IntegerField(verbose_name="Number of participants")
     title = models.CharField(max_length=255, verbose_name="Title of the decision")
     context = models.TextField(verbose_name="Additional context")
+    STEP_CHOICES = [
+      (1, "Step 1"), #Waiting
+      (2, "Step 2"), # Make proposal
+      (3, "Step 3"), # Clustering
+      (4, "Step 4"),  # Vote and comment
+      (5, "Step 5"), # Show result
+    ]
+
+    # To track status of instance
+    current_step = models.IntegerField(choices=STEP_CHOICES, default=1)
 
     def __str__(self):
         return self.title
+
 
     @property
     def link(self):

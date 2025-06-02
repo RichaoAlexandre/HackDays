@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import './App.css'
 import { WelcomeScreen } from './screens/WelcomeScreen'
 import { InitScreen } from './screens/InitScreen'
@@ -8,6 +9,45 @@ import { StartScreen } from './screens/StartScreen'
 import WaitScreen from './screens/WaitScreen'
 
 function App() {
+
+  const wsRef = useRef(null);
+
+  useEffect(() => {
+    // url of websocket: <url>/ws/decision/<decision_id>/current_step/
+    const wsUrl = `http://localhost:8000/ws/decision/1/current_step/`;
+
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      console.log("WebSocket connecté pour process", 1);
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "step.update") {
+          console.log(data.step);
+        }
+      } catch (err) {
+        console.error("Erreur lors du parsing du JSON WebSocket :", err);
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error :", error);
+    };
+
+    ws.onclose = (e) => {
+      console.log("WebSocket fermé :", e);
+      // Si nécessaire, tenter une reconnexion ici
+    };
+
+    return () => {
+      if (wsRef.current) wsRef.current.close();
+    };
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
