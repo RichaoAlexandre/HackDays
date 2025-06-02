@@ -13,4 +13,4 @@ class DecisionToMake(models.Model):
 
     @property
     def link(self):
-        return f"{settings.FRONTEND_URL}/{self.id}"
+        return f"{settings.FRONTEND_URL}/decision/{self.id}"

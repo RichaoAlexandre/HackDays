@@ -29,7 +29,7 @@ class DecisionSchemaOut(ModelSchema):
             "number_of_participants": instance.number_of_participants,
             "title": instance.title,
             "context": instance.context,
-            "link": f"{FRONTEND_URL}/{instance.id}"
+            "link": f"{FRONTEND_URL}/decision/{instance.id}"
         }
         return cls(**data)
 

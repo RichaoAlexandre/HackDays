@@ -184,7 +184,10 @@ export const InitScreen = () => {
       });
       const data = await response.json();
 
-      navigate('/start', { state: { shareLink: data.link } });
+      
+      // Format the link to be a relative path (e.g., /init)
+      const formattedLink = data.link.replace(/^https?:\/\/[^/]+/, '');
+      navigate(formattedLink, { state: { shareLink: data.link, isOwner: true } });
     } catch (error) {
       console.error('Error:', error);
     }

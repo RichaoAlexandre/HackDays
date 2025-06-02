@@ -1,4 +1,4 @@
-import { useLocation } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import { useState } from "react";
 
 export const StartScreen = () => {
@@ -7,6 +7,8 @@ export const StartScreen = () => {
   const total = 10;
 
   const location = useLocation();
+  const isOwner = location.state?.isOwner || "";
+  const uuid = useParams()
   const shareLink = location.state?.shareLink || "";
 
   const [copied, setCopied] = useState(false);
@@ -21,6 +23,12 @@ export const StartScreen = () => {
         setCopied(false);
       }
     }
+  };
+
+  const navigate = useNavigate(); // workaround for context
+
+  const handleJoinWorkshop = () => {
+    navigate("/wait");
   };
 
   return (
@@ -55,11 +63,20 @@ export const StartScreen = () => {
             </span>
           </div>
         )}
-        <button
-          className="px-6 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
-        >
-          Start workshop
-        </button>
+        {isOwner ? (
+          <button
+            className="px-6 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+          >
+            Start workshop
+          </button>
+        ) : (
+          <button
+            className="px-6 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+            onClick={handleJoinWorkshop}
+          >
+            Join workshop 
+          </button>
+        )}
         <div className="flex items-center justify-center gap-2 mt-8">
           <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-900 font-semibold text-sm">
             {joined}
