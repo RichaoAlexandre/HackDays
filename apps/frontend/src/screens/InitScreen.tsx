@@ -6,14 +6,29 @@ export const InitScreen = () => {
       title: '',
       context: '',
       duration: 0,
-      number_of_participants: ''
+      number_of_participants: 0
     })
   
     const handleInputChange = (field: string, value: string | number) => {
-      setFormData(prev => ({
-        ...prev,
-        [field]: value
-      }))
+      setFormData(prev => {
+        // If the field is number_of_participants, always store as int (or 0 if empty)
+        if (field === 'number_of_participants') {
+          let intValue = 0
+          if (typeof value === 'string') {
+            intValue = value === '' ? 0 : parseInt(value, 10)
+          } else {
+            intValue = value
+          }
+          return {
+            ...prev,
+            [field]: isNaN(intValue) ? 0 : intValue
+          }
+        }
+        return {
+          ...prev,
+          [field]: value
+        }
+      })
     }
 
     const handleDurationChange = (hours: string, minutes: string) => {
@@ -129,6 +144,7 @@ export const InitScreen = () => {
                 value={formData.number_of_participants}
                 onChange={(e) => handleInputChange('number_of_participants', e.target.value)}
                 className="w-full px-3 py-2 md:px-4 md:py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                min={0}
               />
               <p className="text-xs md:text-sm text-gray-500 mt-1">Enter number of participants</p>
             </div>
