@@ -17,6 +17,11 @@ class Proposal(models.Model):
         on_delete=models.CASCADE,
         related_name='proposals'
     )
+    decision = models.ForeignKey(
+        'Decision',
+        on_delete=models.CASCADE,
+        related_name='proposals'
+    )
 
     def __str__(self):
         return f"Proposal {self.id} by {self.creator.name}"
@@ -61,11 +66,6 @@ class Decision(models.Model):
         'User',
         on_delete=models.CASCADE,
         related_name="decisions"
-    )
-    proposals = models.ManyToManyField(
-        'Proposal',
-        related_name="decisions",
-        blank=True
     )
 
     def __str__(self):
