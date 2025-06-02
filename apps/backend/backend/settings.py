@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / "subdir".
@@ -27,10 +27,17 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+
+CORS_ALLOWED_ORIGINS = [
+    FRONTEND_URL,  # Allow requests from the React frontend
+]
 
 # Application definition
 
 INSTALLED_APPS = [
+    "corsheaders",
     "core",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -41,6 +48,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",

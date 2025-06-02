@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 
 FRONTEND_URL = "localhost:3000" # to move somewhere else
@@ -12,4 +13,4 @@ class DecisionToMake(models.Model):
 
     @property
     def link(self):
-        return f"{FRONTEND_URL}/{self.id}"
+        return f"{settings.FRONTEND_URL}/{self.id}"
