@@ -3,6 +3,7 @@ import { JoinScreen } from '../screens/JoinScreen'
 import { ProposalScreen } from '../screens/ProposalScreen'
 import WaitScreen from '../screens/WaitScreen'
 import { useParams } from 'react-router'
+import { VotingScreen } from '../screens/VotingScreen'
 
 export const StepsHandler = () => {
   const [step, setStep] = useState(1)
@@ -73,7 +74,7 @@ export const StepsHandler = () => {
   const renderStep = () => {
     switch(step) {
         case 1:   return <WaitScreen connexionNumber={connexionNumber} expectedUserNumber={decision.number_of_participants} />; // Wait screen could be the same for owner and user
-        case 2:   return <ProposalScreen />; 
+        case 2:   return <VotingScreen />; 
         case 3: return <WaitScreen connexionNumber={connexionNumber} expectedUserNumber={decision.number_of_participants}/>; // Screen to wait before AI clustering
         case 4:  return <JoinScreen />; // Screen of votes
         case 5:  return <WaitScreen connexionNumber={connexionNumber} expectedUserNumber={decision.number_of_participants}/>; // Screen of result

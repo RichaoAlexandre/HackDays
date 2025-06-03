@@ -121,7 +121,7 @@ const InitForm = ({
       <button
         type="button"
         onClick={onNext}
-        className="bg-black text-white px-6 py-2 md:px-8 md:py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+        className="bg-[#000091] text-white px-6 py-2 md:px-8 md:py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
       >
         Next
       </button>
