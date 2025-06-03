@@ -1,8 +1,13 @@
 
-export const WaitScreen = () => {
-  // For demo, hardcode joined/total participants
-  const joined = 3;
-  const total = 10;
+interface WaitScreenProps {
+  connexionNumber: number;
+  expectedUserNumber: number
+}
+
+export const WaitScreen = ({
+  connexionNumber,
+  expectedUserNumber
+}: WaitScreenProps) => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-full px-4">
@@ -34,10 +39,10 @@ export const WaitScreen = () => {
         </div>
         <div className="flex items-center justify-center gap-2 mt-2">
           <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-900 font-semibold text-sm">
-            {joined}
+            {connexionNumber}
           </span>
           <span className="text-sm text-gray-500">
-            out of {total} participants joined the workshop
+            out of {expectedUserNumber} participants joined the workshop
           </span>
         </div>
       </div>
