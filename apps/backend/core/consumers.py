@@ -1,6 +1,5 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .models import Decision
 from channels.db import database_sync_to_async
 
 class DecisionStepConsumer(AsyncWebsocketConsumer):
@@ -43,6 +42,8 @@ class DecisionStepConsumer(AsyncWebsocketConsumer):
     
     @database_sync_to_async
     def _get_instance(self, instance_id):
+        from .models import Decision
+        
         try:
             instance = Decision.objects.get(pk=instance_id)
         except Decision.DoesNotExist:

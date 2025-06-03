@@ -2,6 +2,12 @@
 ## Quickstart
 
 ```bash
+
+# LAUNCH FROM DOCKER
+docker compose up --build
+
+# MANUAL LAUNCH
+
 NAME_ENV=venv
 
 # create and activate virtual environnement
@@ -26,6 +32,7 @@ sudo systemctl start redis-server
 
 # launch server
 ./manage.py runserver
+
 ```
 
 
