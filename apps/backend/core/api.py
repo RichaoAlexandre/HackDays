@@ -5,9 +5,46 @@ from .utils import _advance_step_after_delay
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
-from .models import Decision
+from .models import Decision, Proposal, Vote
 
 router = Router()
+
+class ProposalSchemaIn(ModelSchema):
+    class Meta:
+        model = Proposal
+        fields = ["source", "description", "decision"]
+
+class ProposalSchemaOut(ModelSchema):
+    class Meta:
+        model = Proposal
+        fields = ["id", "source", "description", "decision"]
+
+    @classmethod
+    def from_instance(cls, instance):
+        # Helper to build the output schema with the link
+        data = {
+            "id": instance.id,
+            "source": instance.source,
+            "description": instance.description,
+            "decision": instance.decision.id,
+        }
+        return cls(**data)
+
+@router.post(
+    "proposal/",
+    response=ProposalSchemaOut
+)
+def proposal_creation(request, payload: ProposalSchemaIn):
+    proposal = Proposal.objects.create(**payload.dict())
+    return ProposalSchemaOut.from_instance(proposal)
+
+@router.get(
+    "proposal/{id}/",
+    response=ProposalSchemaOut
+)
+def proposal_details(request, id: int):
+    proposal = get_object_or_404(Proposal, id=id)
+    return ProposalSchemaOut.from_instance(proposal)
 
 
 class DecisionSchemaIn(ModelSchema):
@@ -35,7 +72,6 @@ class DecisionSchemaOut(ModelSchema):
             "link": instance.link,
         }
         return cls(**data)
-
 
 @router.post(
     "decision/",
