@@ -3,6 +3,19 @@ from django.conf import settings
 
 
 class Proposal(models.Model):
+    HUMAN = "H"
+    MACHINE = "M"
+    SOURCE_CHOICES = [
+        (HUMAN, "Human"),
+        (MACHINE, "Machine"),
+    ]
+    source = models.CharField(
+        max_length=1,
+        choices=SOURCE_CHOICES,
+        default=HUMAN,
+        verbose_name="Source of Proposal"
+    )
+    id = models.AutoField(primary_key=True)
     description = models.TextField(verbose_name="Proposal Description")
     decision = models.ForeignKey(
         'Decision',
@@ -11,19 +24,19 @@ class Proposal(models.Model):
     )
 
     def __str__(self):
-        return f"Proposal {self.id} by {self.creator.name}"
+        return f"Proposal {self.id}"
 
 
 class Vote(models.Model):
-    PRO = "PR"
-    CON = "CO"
+    PRO = "P"
+    CON = "C"
     TYPE_CHOICES = [
         (PRO, "pro"),
         (CON, "con"),
     ]
 
     type = models.CharField(
-        max_length=2,
+        max_length=1,
         choices=TYPE_CHOICES,
         default=PRO,
         verbose_name="Vote Type"
@@ -36,7 +49,7 @@ class Vote(models.Model):
     )
 
     def __str__(self):
-        return f"{self.get_type_display()} by {self.user.name}"
+        return f"{self.type} vote for {self.proposal.description}..."
 
 
 class Decision(models.Model):
