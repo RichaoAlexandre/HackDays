@@ -4,6 +4,7 @@ import { ProposalScreen } from '../screens/ProposalScreen'
 import WaitScreen from '../screens/WaitScreen'
 import { useParams } from 'react-router'
 import { VotingScreen } from '../screens/VotingScreen'
+import {BACKEND_URL} from '../constants'
 
 export const StepsHandler = () => {
   const [step, setStep] = useState(1)
@@ -15,7 +16,7 @@ export const StepsHandler = () => {
   useEffect(() => {
     if (params.uuid) {
       // url of websocket: <url>/ws/decision/<decision_id>/current_step/
-      const wsUrl = `ws://localhost:8000/ws/decision/${params.uuid}/current_step/`;
+      const wsUrl = `ws://${BACKEND_URL}/ws/decision/${params.uuid}/current_step/`;
   
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
@@ -57,7 +58,7 @@ export const StepsHandler = () => {
   useEffect(() => {
     const fetchDecision = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/api/decision/${params.uuid}/`, {
+        const response = await fetch(`http://${BACKEND_URL}/api/decision/${params.uuid}/`, {
           method: 'GET',
         });
         const data = await response.json();
@@ -73,10 +74,10 @@ export const StepsHandler = () => {
 
   const renderStep = () => {
     switch(step) {
-        case 2:   return <WaitScreen connexionNumber={connexionNumber} expectedUserNumber={decision.number_of_participants} />; // Wait screen could be the same for owner and user
-        case 1:   return <VotingScreen />; 
+        case 1:   return <WaitScreen connexionNumber={connexionNumber} expectedUserNumber={decision.number_of_participants} />; // Wait screen could be the same for owner and user
+        case 2:   return <ProposalScreen />; 
         case 3: return <WaitScreen connexionNumber={connexionNumber} expectedUserNumber={decision.number_of_participants}/>; // Screen to wait before AI clustering
-        case 4:  return <JoinScreen />; // Screen of votes
+        case 4:  return <VotingScreen />; // Screen of votes
         case 5:  return <WaitScreen connexionNumber={connexionNumber} expectedUserNumber={decision.number_of_participants}/>; // Screen of result
         default: return <JoinScreen />; // If the step is not beetwen 1-5, something may be wrong
       }

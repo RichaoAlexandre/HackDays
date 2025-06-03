@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.db.models import Count, Q
 
 
 class Proposal(models.Model):
@@ -25,6 +26,12 @@ class Proposal(models.Model):
 
     def __str__(self):
         return f"Proposal {self.id}"
+    
+    @property
+    def score(self):
+        pro_count = Vote.objects.filter(proposal__id=self.id, type=Vote.PRO).count()
+        con_count = Vote.objects.filter(proposal__id=self.id, type=Vote.CON).count()
+        return pro_count - con_count
 
 
 class Vote(models.Model):
@@ -70,7 +77,6 @@ class Decision(models.Model):
 
     def __str__(self):
         return self.title
-
 
     @property
     def link(self):

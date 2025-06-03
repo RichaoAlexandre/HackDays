@@ -120,5 +120,40 @@ def decision_next_step(request, id: int):
 )
 def decision_proposals(request, id: int):
     decision = get_object_or_404(Decision, id=id)
-    proposals = decision.proposals.all()
-    return [proposal for proposal in proposals]
+    proposals = decision.proposals.filter(source=Proposal.MACHINE)
+    return list(proposals)
+
+
+class VoteSchemaIn(ModelSchema):
+    class Meta:
+        model = Vote
+        fields = ["type", "comment", "proposal"]
+
+class VoteSchemaOut(ModelSchema):
+    class Meta:
+        model = Vote
+        fields = ["type", "comment", "proposal"]
+
+@router.post(
+    "vote/",
+    response=VoteSchemaOut
+)
+def vote_creation(request, payload: VoteSchemaIn):
+    data = payload.dict()
+    proposal = get_object_or_404(Proposal, id=data.pop("proposal"))
+    vote = Vote.objects.create(proposal=proposal, **data)
+
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f"instance_vote_{proposal.decision.id}",
+        {
+            "type": "vote.update",
+            "vote": {
+                "proposal_id": proposal.id,
+                "type": vote.type,
+                "comment": vote.comment,
+                "proposal_score": proposal.score
+            },
+        }
+    )
+    return vote

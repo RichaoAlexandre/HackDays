@@ -5,19 +5,19 @@ import { useNavigate } from "react-router"
 import type { Decision } from "../types/decision"
 import type { ProposalFormData } from "../types/proposal"
 import { ProposalSource } from "../types/proposal"
+import { BACKEND_URL } from "../constants"
 
-const BACKEND_URL = 'http://localhost:8000'
 
 const submitted_proposals = 3; // Example number of submitted proposals, replace with actual logic to fetch this data
 
 export const ProposalScreen = () => {
   const [proposal, setProposal] = useState<ProposalFormData>({ decision_id: 1 , description: '', source: ProposalSource.HUMAN }); // Example decision ID, replace with actual logic to fetch or set decision
   const [decision] = useState<Decision>({ id: 1, duration: { hours: 0, minutes: 30 }, number_of_participants: 100, title: "Title of decision", context: "Context of decision" }); // Example decision ID, replace with actual logic to fetch or set decision
-  const navigate = useNavigate();
+  const [haveSubmit, setHaveSubmit] = useState(false)
 
   const handleSubmitProposal = async () => {
      try {
-      const response = await fetch( `${BACKEND_URL}/api/proposal/`, {
+      const response = await fetch( `http://${BACKEND_URL}/api/proposal/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,9 +26,10 @@ export const ProposalScreen = () => {
       });
       const data = await response.json();
       if (response.ok) {
+        setHaveSubmit(true)
         console.log('Proposal submitted successfully:', data);
         // Optionally, navigate to another screen or reset the form
-        navigate('/wait');
+        //navigate('/wait');
       }
       else if (!response.ok) {
         throw new Error(data.detail ?? 'Failed to submit proposal');
@@ -70,6 +71,7 @@ export const ProposalScreen = () => {
               onChange={handleProposalChange}
               name="proposal"
               id="proposal"
+              disabled={haveSubmit}
               placeholder="Enter only one proposal"
               className="w-full h-48 px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mb-4"
             />
@@ -77,6 +79,7 @@ export const ProposalScreen = () => {
             <div className="flex justify-between items-center">
               <button
                 onClick={handleSubmitProposal}
+                disabled={haveSubmit}
                 className="px-6 py-2 text-white bg-gray-800 rounded-lg font-medium hover:bg-gray-900 transition-colors"
               >
                 Submit proposal

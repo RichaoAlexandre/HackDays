@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FiMessageSquare } from "react-icons/fi";
 import { ProposalVoteModal } from "../components/ProposalVoteModal";
 import { CommentListModal } from "../components/CommentListModal";
+import { useParams } from "react-router";
+import { BACKEND_URL } from "../constants";
 
 type Vote = {
   type: "pro" | "against";
@@ -14,84 +16,158 @@ type Proposal = {
   votes: Vote[];
 };
 
-const initialProposals: Proposal[] = [
-  {
-    id: 1,
-    description:
-      "Option 1",
-    votes: [
-      { type: "pro", comment: "Great idea!" },
-      { type: "pro", comment: "I support this." },
-      { type: "against", comment: "Not feasible in our timeline." },
-      { type: "pro", comment: "Fits our goals." },
-      { type: "pro", comment: "Well thought out." },
-      { type: "against", comment: "Too expensive." },
-      { type: "pro", comment: "" },
-      { type: "pro", comment: "This aligns perfectly with our strategy." },
-      { type: "against", comment: "We need more research before proceeding." },
-      { type: "pro", comment: "Innovative approach!" },
-      { type: "against", comment: "Risks outweigh benefits." },
-      { type: "pro", comment: "Clear and concise solution." },
-      { type: "against", comment: "Not enough stakeholder buy-in." },
-      { type: "pro", comment: "Timely implementation." },
-      { type: "pro", comment: "" },
-      { type: "pro", comment: "Great idea!" },
-      { type: "pro", comment: "I support this." },
-      { type: "against", comment: "Not feasible in our timeline." },
-      { type: "pro", comment: "Fits our goals." },
-      { type: "pro", comment: "Well thought out." },
-      { type: "against", comment: "Too expensive." },
-      { type: "pro", comment: "" },
-      { type: "pro", comment: "This aligns perfectly with our strategy." },
-      { type: "against", comment: "We need more research before proceeding." },
-      { type: "pro", comment: "Innovative approach!" },
-      { type: "against", comment: "Risks outweigh benefits." },
-      { type: "pro", comment: "Clear and concise solution." },
-      { type: "against", comment: "Not enough stakeholder buy-in." },
-      { type: "pro", comment: "Timely implementation." },
-      { type: "pro", comment: "" },
-    ],
-  },
-  {
-    id: 2,
-    description:
-      "Option 2",
-    votes: [{ type: "pro", comment: "" }],
-  },
-  {
-    id: 3,
-    description:
-      "Option 3",
-    votes: [
-      { type: "against", comment: "Doesn't solve the main problem." },
-      { type: "against", comment: "" },
-      { type: "against", comment: "I have concerns about implementation." },
-      { type: "against", comment: "" },
-    ],
-  },
-  {
-    id: 4,
-    description:
-      "Option 4",
-    votes: [{ type: "pro", comment: "" }],
-  },
-];
+
 
 export const VotingScreen = () => {
-  const [proposals, setProposals] = useState<Proposal[]>(initialProposals);
-  const [votes, setVotes] = useState<{ [proposalId: number]: "pro" | "against" | null }>({
-    1: null,
-    2: null,
-    3: null,
-  });
+  const params = useParams()
+  const [proposals, setProposals] = useState<Proposal[]>([]);
+  const [scores, setScores] = useState({})
+  const [votes, setVotes] = useState({});
+  const wsRef = useRef(null);
 
   // For demo, timer is static
   const timer = "05:24:00";
 
-  const handleVote = ( type: "pro" | "against",proposalId: number,comment: string) => {
-    // to do api call and update.
-    console.log('the vote comment is', comment)
+  useEffect(() => {
+    if (params.uuid) {
+      // url of websocket: <url>/ws/decision/<decision_id>/current_step/
+      const wsUrl = `ws://${BACKEND_URL}/ws/decision/${params.uuid}/votes/`;
+  
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+  
+      ws.onopen = () => {
+        console.log("WebSocket connecté pour process", 1);
+      };
+  
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === "vote.update") {
+            setScores(prev => ({
+              ...prev,
+              [data.vote.proposal_id]: data.vote.proposal_score
+            }))
+            setVotes(prev => {
+              const newVote = data.vote
+              const oldVotes = prev[data.vote.proposal_id] || [];
+              const newVotes = [...oldVotes, newVote];
+              return {
+                ...prev,
+                [data.vote.proposal_id]: newVotes
+              };
+            })
+          }
+          if (data.type === "vote.list") {
+            const grouped = {};
+            data.votes.forEach(item => {
+              const key = item.proposal_id;
+              if (!grouped[key]) {
+                grouped[key] = [];
+              }
+              grouped[key].push(item);
+            });
+            setVotes(grouped)
+          }
+          if (data.type === "proposal.score") {
+            const initialScores = {}
+            for(const score of data.proposal_scores){
+              initialScores[score.proposal_id] = score.score
+            }
+            setScores(initialScores)
+          }
+        } catch (err) {
+          console.error("Erreur lors du parsing du JSON WebSocket :", err);
+        }
+      };
+  
+      ws.onerror = (error) => {
+        console.error("WebSocket error :", error);
+      };
+  
+      ws.onclose = (e) => {
+        console.log("WebSocket fermé :", e);
+        // Si nécessaire, tenter une reconnexion ici
+      };
+  
+      return () => {
+        if (wsRef.current) wsRef.current.close();
+      };
+
+    }
+  }, [params.uuid]);
+
+  useEffect(() => {
+    const fetchProposals = async () => {
+      try {
+        const response = await fetch(`http://${BACKEND_URL}/api/decision/${params.uuid}/proposals/`, {
+          method: 'GET',
+        });
+        const data = await response.json();
+        setProposals(data)
+        setScores(
+          data.map(
+            p => {
+              return {[p["id"]]: 0}
+            }
+          )
+        )
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+    if (params.uuid) {
+      fetchProposals()
+    }
+  }, [params.uuid])
+
+  const handleVote = async ( type: "P" | "C",proposalId: number,comment: string) => {
+    try {
+      const vote = {
+        type: type,
+        proposal_id: proposalId,
+        comment: comment,
+      }
+      const response = await fetch( `${BACKEND_URL}/api/vote/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(vote)
+      });
+      const data = await response.json();
+    } catch (error) {
+      console.error('Error submitting vote:', error);
+    }
   };
+
+  const getTypeVoteCount = (proposalId, voteType) => {
+    if (votes[proposalId]) {
+      return votes[proposalId].filter((v) => v.type === voteType).length
+    }
+    return 0
+  }
+
+  const getVoteForProposal = proposalId => {
+    return votes[proposalId] ? votes[proposalId] : []
+  }
+
+  const getComponentListModal = (proposalId, proposalDescription) => {
+    return (
+      <CommentListModal
+        proposalDescription={proposalDescription}
+        votes={getVoteForProposal(proposalId)}
+        trigger={
+      <button
+        className="p-2 rounded hover:bg-gray-100 transition"
+        aria-label="Open comments"
+      >
+        <FiMessageSquare className="w-5 h-5 text-gray-500" />
+      </button>
+      }
+      />
+    )
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center py-10 px-2">
@@ -136,9 +212,8 @@ export const VotingScreen = () => {
             </thead>
             <tbody>
               {proposals.map((proposal) => {
-                const proCount = proposal.votes.filter((v) => v.type === "pro").length;
-                const conCount = proposal.votes.filter((v) => v.type === "against").length;
-                const totalPoints = proCount - conCount;
+                let proCount = getTypeVoteCount(proposal.id, "P")
+                let conCount = getTypeVoteCount(proposal.id, "C")
 
                 return (
                   <tr
@@ -171,26 +246,18 @@ export const VotingScreen = () => {
                     </td>
                     {/* Total points */}
                     <td className="py-4 px-4 text-center align-top">
-                      <span className="text-lg font-bold text-gray-800">{totalPoints}</span>
+                      <span className="text-lg font-bold text-gray-800">{scores[proposal.id]}</span>
                     </td>
                     {/* Comments */}
                     <td className="py-4 px-4 text-center align-top">
-                        <CommentCountCell proCount={proCount} conCount={conCount} />
+                        <CommentCountCell 
+                          proCount={getTypeVoteCount(proposal.id, "P")}
+                          conCount={getTypeVoteCount(proposal.id, "C")}
+                        />
                     </td>
                     {/* Comment icon */}
                     <td className="py-4 px-4 text-center align-top">
-                    <CommentListModal
-                        proposalDescription={proposal.description}
-                        votes={proposal.votes}
-                        trigger={
-                      <button
-                        className="p-2 rounded hover:bg-gray-100 transition"
-                        aria-label="Open comments"
-                      >
-                        <FiMessageSquare className="w-5 h-5 text-gray-500" />
-                      </button>
-                      }
-                      />
+                    {getComponentListModal(proposal.id, proposal.description)}
                     </td>
                   </tr>
                 );

@@ -10,8 +10,10 @@ import {
 import { cn } from "../utils";
 
 type Vote = {
-  type: "pro" | "against";
+  proposal_id: number,
+  type: "P" | "C";
   comment: string;
+  proposal_score: number
 };
 
 interface CommentListModalProps {
@@ -28,19 +30,19 @@ export const CommentListModal: React.FC<CommentListModalProps> = ({
   onOpenChange,
 }) => {
   const [open, setOpen] = React.useState(false);
-  const [tab, setTab] = React.useState<"pro" | "against">("pro");
+  const [tab, setTab] = React.useState<"P" | "C">("P");
 
   React.useEffect(() => {
     if (!open) {
-      setTab("pro");
+      setTab("P");
     }
   }, [open]);
 
   const proComments = votes.filter(
-    (v) => v.type === "pro" && v.comment.trim() !== ""
+    (v) => v.type === "P" && v.comment.trim() !== ""
   );
   const againstComments = votes.filter(
-    (v) => v.type === "against" && v.comment.trim() !== ""
+    (v) => v.type === "C" && v.comment.trim() !== ""
   );
 
   return (
@@ -60,11 +62,11 @@ export const CommentListModal: React.FC<CommentListModalProps> = ({
             <button
               className={cn(
                 "flex-1 py-2 text-sm font-medium flex items-center justify-center gap-2 transition",
-                tab === "pro"
+                tab === "P"
                   ? "bg-white text-black"
                   : "text-gray-500 hover:bg-gray-200"
               )}
-              onClick={() => setTab("pro")}
+              onClick={() => setTab("P")}
               type="button"
             >
               <span className="inline-block w-3 h-3 rounded-full bg-green-400 border-2 border-green-500 mr-2" />
@@ -73,11 +75,11 @@ export const CommentListModal: React.FC<CommentListModalProps> = ({
             <button
               className={cn(
                 "flex-1 py-2 text-sm font-medium flex items-center justify-center gap-2 transition",
-                tab === "against"
+                tab === "C"
                   ? "bg-white text-black"
                   : "text-gray-500 hover:bg-gray-200"
               )}
-              onClick={() => setTab("against")}
+              onClick={() => setTab("C")}
               type="button"
             >
               <span className="inline-block w-3 h-3 rounded-full bg-red-300 border-2 border-red-500 mr-2" />
@@ -87,10 +89,10 @@ export const CommentListModal: React.FC<CommentListModalProps> = ({
           {/* Comments List */}
           <div className="max-h-[300px] overflow-y-auto mb-6">
             <ul>
-              {(tab === "pro" ? proComments : againstComments).length === 0 ? (
+              {(tab === "P" ? proComments : againstComments).length === 0 ? (
                 <li className="text-gray-400 italic py-2">No comments.</li>
               ) : (
-                (tab === "pro" ? proComments : againstComments).map((vote, idx) => (
+                (tab === "P" ? proComments : againstComments).map((vote, idx) => (
                   <li key={idx} className="mb-3 flex items-start">
                     <span className="mt-1 mr-2 text-lg text-gray-400">•</span>
                     <span className="text-black">{vote.comment}</span>
