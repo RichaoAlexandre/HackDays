@@ -6,7 +6,7 @@ interface ProposalVoteModalProps {
     onOpenChange?: (open: boolean) => void;
     proposalDescription: string;
     proposalId: number;
-    onSubmit: (vote: "pro" | "against", proposalId: number, comment: string) => void;
+    onSubmit: (vote: "P" | "C", proposalId: number, comment: string) => void;
     loading?: boolean;
     trigger: React.ReactNode
 }
@@ -18,7 +18,7 @@ export const ProposalVoteModal: React.FC<ProposalVoteModalProps> = ({
     loading = false,
     trigger
 }) => {
-    const [vote, setVote] = React.useState<"pro" | "against" | null>(null);
+    const [vote, setVote] = React.useState<"P" | "C" | null>(null);
     const [comment, setComment] = React.useState("");
     const [open, setOpen] = React.useState(false);
 
@@ -55,9 +55,9 @@ export const ProposalVoteModal: React.FC<ProposalVoteModalProps> = ({
                                 <input
                                     type="radio"
                                     name="vote"
-                                    value="pro"
-                                    checked={vote === "pro"}
-                                    onChange={() => setVote("pro")}
+                                    value="P"
+                                    checked={vote === "P"}
+                                    onChange={() => setVote("P")}
                                     className="accent-green-500 w-5 h-5"
                                 />
                                 <span className="text-black">Vote for</span>
@@ -67,9 +67,9 @@ export const ProposalVoteModal: React.FC<ProposalVoteModalProps> = ({
                                 <input
                                     type="radio"
                                     name="vote"
-                                    value="against"
-                                    checked={vote === "against"}
-                                    onChange={() => setVote("against")}
+                                    value="C"
+                                    checked={vote === "C"}
+                                    onChange={() => setVote("C")}
                                     className="accent-red-500 w-5 h-5"
                                 />
                                 <span className="text-black">Vote against</span>

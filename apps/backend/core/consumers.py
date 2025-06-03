@@ -133,21 +133,15 @@ class VoteConsumer(AsyncWebsocketConsumer):
     async def vote_list(self, event):
         votes = event["votes"]
         await self.send(text_data=json.dumps({
-            "type": "vote.update",
+            "type": "vote.list",
             "votes": votes,
         }))
 
     async def vote_update(self, event):
         vote = event["vote"]
-        proposal_id = event["proposal_id"]
         await self.send(text_data=json.dumps({
             "type": "vote.update",
-            "vote": {
-                "proposal_id": vote.proposal.id,
-                "type": vote.type,
-                "comment": vote.comment,
-                "proposal_score": await self._get_proposal_score(proposal_id)
-            },
+            "vote": vote
         }))
 
     
@@ -192,7 +186,7 @@ class VoteConsumer(AsyncWebsocketConsumer):
     def _get_proposal_scores(self, instance_id: int):
         from .models import Proposal
         scores = []
-        for prop in Proposal.objects.filter(decision__id=instance_id):
+        for prop in Proposal.objects.filter(decision__id=instance_id, source=Proposal.MACHINE):
             scores.append({
                 "proposal_id": prop.id,
                 "score": prop.score
