@@ -8,26 +8,43 @@ services:
       - redis_data:/data
     restart: unless-stopped
 
-  web:
+  backend:
     build:
-      context: .
+      context: ./apps/backend
       dockerfile: Dockerfile
-    container_name: backend
     command: >
       sh -c "
         python manage.py migrate --noinput &&
         daphne -b 0.0.0.0 -p 8000 backend.asgi:application
       "
     volumes:
-      - .:/code
+      - ./apps/backend:/app_backend
     ports:
       - "8000:8000"
     depends_on:
       - redis
     environment:
       - DJANGO_SETTINGS_MODULE=backend.settings
+      - REDIS_HOST=redis
+      - HOST_ADDRESS=127.0.0.1
+      - FRONTEND_URL=http://localhost:5173
       - DEBUG=1
     restart: unless-stopped
+  
+  frontend-dev:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./apps/frontend:/app_frontend
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_BACKEND_URL=localhost:8000
+    restart: unless-stopped
+    depends_on:
+      - backend
 
 volumes:
   redis_data:

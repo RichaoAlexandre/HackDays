@@ -1,11 +1,9 @@
 import { useState } from "react"
 import { SpecCard } from "../components/SpecCard"
-import { useNavigate } from "react-router"
 
 import type { Decision } from "../types/decision"
 import type { ProposalFormData } from "../types/proposal"
 import { ProposalSource } from "../types/proposal"
-import { BACKEND_URL } from "../constants"
 
 
 const submitted_proposals = 3; // Example number of submitted proposals, replace with actual logic to fetch this data
@@ -17,7 +15,7 @@ export const ProposalScreen = () => {
 
   const handleSubmitProposal = async () => {
      try {
-      const response = await fetch( `http://${BACKEND_URL}/api/proposal/`, {
+      const response = await fetch( `http://${import.meta.env.VITE_BACKEND_URL}/api/proposal/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
