@@ -3,3 +3,4 @@ channels[daphne]
 channels_redis
 django-ninja
 django-cors-headers
+django-redis
