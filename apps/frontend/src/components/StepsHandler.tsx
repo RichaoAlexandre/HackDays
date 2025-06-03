@@ -73,8 +73,8 @@ export const StepsHandler = () => {
 
   const renderStep = () => {
     switch(step) {
-        case 1:   return <WaitScreen connexionNumber={connexionNumber} expectedUserNumber={decision.number_of_participants} />; // Wait screen could be the same for owner and user
-        case 2:   return <VotingScreen />; 
+        case 2:   return <WaitScreen connexionNumber={connexionNumber} expectedUserNumber={decision.number_of_participants} />; // Wait screen could be the same for owner and user
+        case 1:   return <VotingScreen />; 
         case 3: return <WaitScreen connexionNumber={connexionNumber} expectedUserNumber={decision.number_of_participants}/>; // Screen to wait before AI clustering
         case 4:  return <JoinScreen />; // Screen of votes
         case 5:  return <WaitScreen connexionNumber={connexionNumber} expectedUserNumber={decision.number_of_participants}/>; // Screen of result
@@ -85,6 +85,6 @@ export const StepsHandler = () => {
   return (
     <>
       {decision && renderStep()}
-    </>
+g    </>
   )
 }

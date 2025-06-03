@@ -85,18 +85,20 @@ export const CommentListModal: React.FC<CommentListModalProps> = ({
             </button>
           </div>
           {/* Comments List */}
-          <ul className="mb-6">
-            {(tab === "pro" ? proComments : againstComments).length === 0 ? (
-              <li className="text-gray-400 italic py-2">No comments.</li>
-            ) : (
-              (tab === "pro" ? proComments : againstComments).map((vote, idx) => (
-                <li key={idx} className="mb-3 flex items-start">
-                  <span className="mt-1 mr-2 text-lg text-gray-400">•</span>
-                  <span className="text-black">{vote.comment}</span>
-                </li>
-              ))
-            )}
-          </ul>
+          <div className="max-h-[300px] overflow-y-auto mb-6">
+            <ul>
+              {(tab === "pro" ? proComments : againstComments).length === 0 ? (
+                <li className="text-gray-400 italic py-2">No comments.</li>
+              ) : (
+                (tab === "pro" ? proComments : againstComments).map((vote, idx) => (
+                  <li key={idx} className="mb-3 flex items-start">
+                    <span className="mt-1 mr-2 text-lg text-gray-400">•</span>
+                    <span className="text-black">{vote.comment}</span>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
         </div>
         <div className="flex justify-end px-8 pb-8">
           <DialogClose asChild>
