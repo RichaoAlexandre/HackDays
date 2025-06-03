@@ -1,11 +1,48 @@
 import { useState } from "react"
 import { SpecCard } from "../components/SpecCard"
+import { useNavigate } from "react-router"
+
+import type { Decision } from "../types/decision"
+import type { ProposalFormData } from "../types/proposal"
+import { ProposalSource } from "../types/proposal"
+
+const BACKEND_URL = 'http://localhost:8000'
+
+const submitted_proposals = 3; // Example number of submitted proposals, replace with actual logic to fetch this data
 
 export const ProposalScreen = () => {
-  const [proposal, setProposal] = useState("")
+  const [proposal, setProposal] = useState<ProposalFormData>({ decision_id: 1 , description: '', source: ProposalSource.HUMAN }); // Example decision ID, replace with actual logic to fetch or set decision
+  const [decision] = useState<Decision>({ id: 1, duration: { hours: 0, minutes: 30 }, number_of_participants: 100, title: "Title of decision", context: "Context of decision" }); // Example decision ID, replace with actual logic to fetch or set decision
+  const navigate = useNavigate();
 
-  const handleSubmitProposal = () => {
-    console.log("Submitting proposal:", proposal)
+  const handleSubmitProposal = async () => {
+     try {
+      const response = await fetch( `${BACKEND_URL}/api/proposal/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(proposal)
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log('Proposal submitted successfully:', data);
+        // Optionally, navigate to another screen or reset the form
+        navigate('/wait');
+      }
+      else if (!response.ok) {
+        throw new Error(data.detail ?? 'Failed to submit proposal');
+      }
+    } catch (error) {
+      console.error('Error submitting proposal:', error);
+    }
+  }
+
+  const handleProposalChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setProposal(prev => ({
+      ...prev,
+      description: e.target.value
+    }));
   }
 
   return (
@@ -14,10 +51,10 @@ export const ProposalScreen = () => {
         {/* Left side - Workshop specs */}
         <div className="flex-1">
           <SpecCard
-            decisionTitle="Lorem ipsum dolor sit amet"
-            decisionContext="Lorem ipsum dolor sit amet consectetur. Tempus et non vel egestas. Sit vel commodo nibh ullamcorper dolor."
-            duration={{ hours: 1, minutes: 30 }}
-            participants={6}
+            decisionTitle={decision.title ?? ''}
+            decisionContext={decision.context ?? ''}
+            duration={decision.duration ?? { hours: 1, minutes: 0 }}
+            participants={decision.number_of_participants ?? 0}
           />
         </div>
 
@@ -29,8 +66,10 @@ export const ProposalScreen = () => {
             </h2>
             
             <textarea
-              value={proposal}
-              onChange={(e) => setProposal(e.target.value)}
+              value={proposal.description ?? ''}
+              onChange={handleProposalChange}
+              name="proposal"
+              id="proposal"
               placeholder="Enter only one proposal"
               className="w-full h-48 px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mb-4"
             />
@@ -49,7 +88,7 @@ export const ProposalScreen = () => {
                   <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm">CN</div>
                   <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm">BO</div>
                 </div>
-                <span className="text-sm text-gray-600">4 participants submitted their proposals</span>
+                <span className="text-sm text-gray-600"> {submitted_proposals} participants submitted their proposals</span>
               </div>
             </div>
           </div>

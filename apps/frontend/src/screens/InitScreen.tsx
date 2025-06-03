@@ -216,8 +216,8 @@ export const InitScreen = () => {
             duration={getDurationObj(formData.duration)}
             participants={formData.number_of_participants}
             handleCancel={() => setShowSpecCard(false)}
-            handleSubmit={handleSubmitSpecCard}/
-          >
+            handleSubmit={handleSubmitSpecCard}
+          />
         }
       </div>
     </div>

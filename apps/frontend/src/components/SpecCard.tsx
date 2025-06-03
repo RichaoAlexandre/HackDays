@@ -1,10 +1,9 @@
+import type { Duration } from '../types/duration';
+
 interface SpecCardProps {
     decisionTitle: string;
     decisionContext: string;
-    duration: {
-        hours: number;
-        minutes: number;
-    };
+    duration: Duration;
     participants: number;
     handleCancel?: () => void
     handleSubmit?: () => {}
