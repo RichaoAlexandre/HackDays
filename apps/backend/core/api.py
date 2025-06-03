@@ -1,10 +1,12 @@
-from ninja import Router, ModelSchema
+from typing import List
 import threading
+
+from ninja import Router, ModelSchema
 from django.shortcuts import get_object_or_404
-from .utils import _advance_step_after_delay
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
+from .utils import _advance_step_after_delay
 from .models import Decision, Proposal, Vote
 
 router = Router()
@@ -35,7 +37,8 @@ def proposal_creation(request, payload: ProposalSchemaIn):
 )
 def proposal_details(request, id: int):
     proposal = get_object_or_404(Proposal, id=id)
-    return ProposalSchemaOut.from_instance(proposal)
+    return proposal
+
 
 
 class DecisionSchemaIn(ModelSchema):
@@ -109,3 +112,13 @@ def decision_next_step(request, id: int):
     )
 
     return {"step": instance.current_step}
+
+
+@router.get(
+    "decision/{id}/proposals/",
+    response=List[ProposalSchemaOut]
+)
+def decision_proposals(request, id: int):
+    decision = get_object_or_404(Decision, id=id)
+    proposals = decision.proposals.all()
+    return [proposal for proposal in proposals]
