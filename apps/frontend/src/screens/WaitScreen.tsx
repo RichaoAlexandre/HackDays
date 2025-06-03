@@ -2,11 +2,17 @@
 interface WaitScreenProps {
   connexionNumber: number;
   expectedUserNumber: number
+  titleLabel?:string ,
+  actionLabel?: string,
+  triggerNextStep?: () => void,
 }
 
 export const WaitScreen = ({
   connexionNumber,
-  expectedUserNumber
+  expectedUserNumber,
+  triggerNextStep,
+  titleLabel, 
+  actionLabel
 }: WaitScreenProps) => {
 
   return (
@@ -14,7 +20,7 @@ export const WaitScreen = ({
       <div className="w-full max-w-2xl text-center">
         <div className="flex items-center justify-center gap-2 mb-4">
           <span className="text-lg font-semibold text-gray-900">
-            Waiting for the organiser to start the workshop
+            {titleLabel}
           </span>
           <svg
             className="animate-spin h-4 w-4 text-gray-500"
@@ -42,9 +48,18 @@ export const WaitScreen = ({
             {connexionNumber}
           </span>
           <span className="text-sm text-gray-500">
-            out of {expectedUserNumber} participants joined the workshop
+            {/* out of {expectedUserNumber} participants joined the workshop */}
+            out of {expectedUserNumber} participants {actionLabel}
           </span>
         </div>
+        {triggerNextStep && (
+          <button
+            onClick={triggerNextStep}
+            className="mt-6 px-6 py-2 bg-[#000091] text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+          >
+            Start workshop
+          </button>
+        )}
       </div>
     </div>
   );

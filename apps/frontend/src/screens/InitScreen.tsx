@@ -30,7 +30,7 @@ const InitForm = ({
             Decision making workshop details
           </h3>
           <p className="text-sm md:text-base text-gray-600">
-            Lorem ipsum dolor sit amet consectetur. Massa venenatis fermentum orci eget tempus lacus maecenas.
+            Fill in the details of this form before starting the workshop !
           </p>
         </div>
   <form className="space-y-4 md:space-y-6">
@@ -69,7 +69,7 @@ const InitForm = ({
     {/* Workshop Duration */}
     <div>
       <label className="block text-sm font-medium text-gray-900 mb-1 md:mb-2">
-        Workshop duration <span className="text-red-500">*</span>
+        Voting duration <span className="text-red-500">*</span>
       </label>
       <div className="grid grid-cols-2 gap-2 md:gap-4">
         <div>
