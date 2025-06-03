@@ -100,8 +100,7 @@ export const StepsHandler = () => {
       case 3: return <WaitScreen connexionNumber={connexionNumber}
         expectedUserNumber={decision.number_of_participants}
         triggerNextStep={triggerNextStep}
-        expectedUserNumber={decision?.number_of_participants}
-        titleLabel=' Waiting for the collaboartors to make their proposals',
+        titleLabel=' Waiting for the collaboartors to make their proposals'
         actionLabel='have made a prooposal.'
       />; // Screen to wait before AI clustering
       case 4: return <VotingScreen />; // Screen of votes
