@@ -19,24 +19,15 @@ class ProposalSchemaOut(ModelSchema):
         model = Proposal
         fields = ["id", "source", "description", "decision"]
 
-    @classmethod
-    def from_instance(cls, instance):
-        # Helper to build the output schema with the link
-        data = {
-            "id": instance.id,
-            "source": instance.source,
-            "description": instance.description,
-            "decision": instance.decision.id,
-        }
-        return cls(**data)
-
 @router.post(
     "proposal/",
     response=ProposalSchemaOut
 )
 def proposal_creation(request, payload: ProposalSchemaIn):
-    proposal = Proposal.objects.create(**payload.dict())
-    return ProposalSchemaOut.from_instance(proposal)
+    data = payload.dict()
+    decision = get_object_or_404(Decision, id=data.pop("decision"))
+    proposal = Proposal.objects.create(decision=decision, **data)
+    return proposal
 
 @router.get(
     "proposal/{id}/",
@@ -104,17 +95,6 @@ def decision_next_step(request, id: int):
             60,  # secondes
             _advance_step_after_delay,
             args=(id, 2)
-        )
-        timer.daemon = True
-        timer.start()
-
-    # If step "vote and comment", launch of timer, and update step at the end of it
-    if instance.current_step == 4:
-        # Launch python timer for <instance.duration> seconds
-        timer = threading.Timer(
-            instance.duration,
-            _advance_step_after_delay,
-            args=(id, 4)
         )
         timer.daemon = True
         timer.start()
