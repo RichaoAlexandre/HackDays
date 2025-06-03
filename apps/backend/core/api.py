@@ -1,5 +1,9 @@
 from ninja import Router, ModelSchema
+import threading
 from django.shortcuts import get_object_or_404
+from .utils import _advance_step_after_delay
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 from .models import Decision
 
@@ -47,3 +51,45 @@ def decision_creation(request, payload: DecisionSchemaIn):
 )
 def decision_details(request, id: int):
     return get_object_or_404(Decision, id=id)
+
+
+@router.post(
+    "decision/{id}/next_step/",
+)
+def decision_next_step(request, id: int):
+    instance = get_object_or_404(Decision, id=id)
+    instance.current_step += 1
+    instance.save()
+
+    # If step "make proposal", launch of timer, and update step at the end of it
+    if instance.current_step == 2:
+        # Launch python timer for 60 seconds
+        timer = threading.Timer(
+            60,  # secondes
+            _advance_step_after_delay,
+            args=(id, 2)
+        )
+        timer.daemon = True
+        timer.start()
+
+    # If step "vote and comment", launch of timer, and update step at the end of it
+    if instance.current_step == 4:
+        # Launch python timer for <instance.duration> seconds
+        timer = threading.Timer(
+            instance.duration,
+            _advance_step_after_delay,
+            args=(id, 4)
+        )
+        timer.daemon = True
+        timer.start()
+
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f"instance_{id}",
+        {
+            "type": "step.update",
+            "step": instance.current_step,
+        }
+    )
+
+    return {"step": instance.current_step}
