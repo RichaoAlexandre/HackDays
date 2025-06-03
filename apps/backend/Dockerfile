@@ -10,13 +10,13 @@ RUN apt-get update \
        libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /docker
+WORKDIR /app_backend
 
-COPY requirements.txt /docker/
+COPY requirements.txt /app_backend/
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
-COPY . /docker/
+COPY . /app_backend/
 
 EXPOSE 8000
 

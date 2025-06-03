@@ -2,7 +2,6 @@ import { useState } from "react"
 import NumberInput from "../components/NumberInput"
 import { SpecCard } from "../components/SpecCard"
 import { useNavigate } from "react-router"
-import { BACKEND_URL } from "../constants"
 
 type FormData = {
   title: string
@@ -175,7 +174,7 @@ export const InitScreen = () => {
 
   const handleSubmitSpecCard = async () => {
     try {
-      const response = await fetch(`http://${BACKEND_URL}/api/decision/`, {
+      const response = await fetch(`http://${import.meta.env.VITE_BACKEND_URL}/api/decision/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
