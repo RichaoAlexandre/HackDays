@@ -43,7 +43,7 @@ export const ProposalVoteModal: React.FC<ProposalVoteModalProps> = ({
                 {trigger}
             </DialogTrigger>
             <DialogContent className="max-w-md bg-white p-0">
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={e => handleSubmit(e)}>
                     <DialogHeader className="px-8 pt-8 pb-0">
                         <DialogTitle className="text-2xl font-bold mb-2">Vote selected proposal</DialogTitle>
                     </DialogHeader>

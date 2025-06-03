@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from django.db.models import Count, Q
+from django.db.models import Count, Case, When, F, Value, FloatField, ExpressionWrapper
 
 
 class Proposal(models.Model):
@@ -81,3 +81,23 @@ class Decision(models.Model):
     @property
     def link(self):
         return f"{settings.FRONTEND_URL}/decision/{self.id}"
+
+    @property
+    def result(self):
+        qs = self.proposals.filter(source=Proposal.MACHINE).annotate(
+            count_pro=Count(Case(When(votes__type=Vote.PRO, then=1))),
+            count_con=Count(Case(When(votes__type=Vote.CON, then=1))),
+            count_total=Count('votes'),
+        ).annotate(
+            p_score=F('count_pro') - F('count_con')
+        ).annotate(
+            taux_contre=Case(
+                When(count_total=0, then=Value(0.0)),
+                default=ExpressionWrapper(
+                    F('count_con') * 1.0 / F('count_total'),
+                    output_field=FloatField()
+                )
+            )
+        ).order_by('-p_score', 'taux_contre')
+        winner = qs.first()
+        return winner.description if winner else ""

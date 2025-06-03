@@ -1,19 +1,37 @@
+import { useParams } from "react-router";
 
 interface WaitScreenProps {
   connexionNumber: number;
   expectedUserNumber: number
   titleLabel?:string ,
   actionLabel?: string,
-  triggerNextStep?: () => void,
 }
 
 export const WaitScreen = ({
   connexionNumber,
   expectedUserNumber,
-  triggerNextStep,
   titleLabel, 
   actionLabel
 }: WaitScreenProps) => {
+
+  const params = useParams()
+  const isOrganizer = () => {
+    return localStorage.getItem(`organizer_of_decision_${params.uuid}`) == "Yes"
+  }
+
+  const triggerNextStep = async () => {
+    try {
+      const response = await fetch(`http://${import.meta.env.VITE_BACKEND_URL}/api/decision/${params.uuid}/next_step/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      await response.json();
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-full px-4">
@@ -52,9 +70,9 @@ export const WaitScreen = ({
             out of {expectedUserNumber} participants {actionLabel}
           </span>
         </div>
-        {triggerNextStep && (
+        {isOrganizer() && (
           <button
-            onClick={triggerNextStep}
+            onClick={() => triggerNextStep()}
             className="mt-6 px-6 py-2 bg-[#000091] text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
           >
             Start workshop

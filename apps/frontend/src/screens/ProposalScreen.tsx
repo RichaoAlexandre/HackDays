@@ -1,23 +1,26 @@
 import { useState } from "react"
 import { SpecCard } from "../components/SpecCard"
-import { useNavigate } from "react-router"
 
 import type { Decision } from "../types/decision"
 import type { ProposalFormData } from "../types/proposal"
 import { ProposalSource } from "../types/proposal"
-import { BACKEND_URL } from "../constants"
 
 
 const submitted_proposals = 3; // Example number of submitted proposals, replace with actual logic to fetch this data
 
-export const ProposalScreen = () => {
-  const [proposal, setProposal] = useState<ProposalFormData>({ decision_id: 1 , description: '', source: ProposalSource.HUMAN }); // Example decision ID, replace with actual logic to fetch or set decision
-  const [decision] = useState<Decision>({ id: 1, duration: { hours: 0, minutes: 30 }, number_of_participants: 100, title: "Title of decision", context: "Context of decision" }); // Example decision ID, replace with actual logic to fetch or set decision
+interface ProposalScreenProps {
+  decision: Decision;
+}
+
+export const ProposalScreen = ({
+  decision
+}: ProposalScreenProps) => {
+  const [proposal, setProposal] = useState<ProposalFormData>({ decision_id: decision.id , description: '', source: ProposalSource.HUMAN });
   const [haveSubmit, setHaveSubmit] = useState(false)
 
   const handleSubmitProposal = async () => {
      try {
-      const response = await fetch( `http://${BACKEND_URL}/api/proposal/`, {
+      const response = await fetch( `http://${import.meta.env.VITE_BACKEND_URL}/api/proposal/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -27,9 +30,6 @@ export const ProposalScreen = () => {
       const data = await response.json();
       if (response.ok) {
         setHaveSubmit(true)
-        console.log('Proposal submitted successfully:', data);
-        // Optionally, navigate to another screen or reset the form
-        //navigate('/wait');
       }
       else if (!response.ok) {
         throw new Error(data.detail ?? 'Failed to submit proposal');
@@ -46,6 +46,15 @@ export const ProposalScreen = () => {
     }));
   }
 
+  const computeDuration = () => {
+    if (!decision.duration) return {}
+    const hours = Math.floor(decision.duration / 3600);
+    const residue = decision.duration % 3600;
+    const minutes = Math.floor(residue / 60);
+
+    return { hours: hours, minutes: minutes };
+  }
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen w-full p-4 overflow-y-auto">
       <div className="w-full max-w-6xl flex gap-8">
@@ -54,7 +63,7 @@ export const ProposalScreen = () => {
           <SpecCard
             decisionTitle={decision.title ?? ''}
             decisionContext={decision.context ?? ''}
-            duration={decision.duration ?? { hours: 1, minutes: 0 }}
+            duration={computeDuration()}
             participants={decision.number_of_participants ?? 0}
           />
         </div>
@@ -62,28 +71,46 @@ export const ProposalScreen = () => {
         {/* Right side - Proposal input */}
         <div className="flex-1">
           <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Proposal box title
-            </h2>
+            {!haveSubmit ? (
+              <>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  What's your proposal?
+                </h2>
+                
+                <textarea
+                  value={proposal.description ?? ''}
+                  onChange={handleProposalChange}
+                  name="proposal"
+                  id="proposal"
+                  disabled={haveSubmit}
+                  placeholder="Enter only one proposal"
+                  className="w-full h-48 px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mb-4"
+                />
+              </>
+            ) :(
+              <>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  Your proposal:
+                </h2>
+
+                <div className="text-lg text-gray-800 mb-4">
+                  {proposal.description}
+                </div>
+                
             
-            <textarea
-              value={proposal.description ?? ''}
-              onChange={handleProposalChange}
-              name="proposal"
-              id="proposal"
-              disabled={haveSubmit}
-              placeholder="Enter only one proposal"
-              className="w-full h-48 px-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mb-4"
-            />
+              </>
+            )}
 
             <div className="flex justify-between items-center">
-              <button
-                onClick={handleSubmitProposal}
-                disabled={haveSubmit}
-                className="px-6 py-2 text-white bg-gray-800 rounded-lg font-medium hover:bg-gray-900 transition-colors"
-              >
-                Submit proposal
-              </button>
+              {!haveSubmit && (
+                <button
+                  onClick={handleSubmitProposal}
+                  disabled={haveSubmit}
+                  className="px-6 py-2 text-white bg-gray-800 rounded-lg font-medium hover:bg-gray-900 transition-colors"
+                >
+                  Submit proposal
+                </button>
+              )}
 
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">

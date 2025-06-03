@@ -2,26 +2,24 @@ import { useState } from "react"
 import NumberInput from "../components/NumberInput"
 import { SpecCard } from "../components/SpecCard"
 import { useNavigate } from "react-router"
-import { BACKEND_URL } from "../constants"
 
 type FormData = {
   title: string
   context: string
-  duration: number
+  durationMinutes: number
+  durationHours: number
   number_of_participants: number
 }
 
 type InitFormProps = {
   formData: FormData
   onInputChange: (field: string, value: string | number) => void
-  onDurationChange: (hours: string, minutes: string) => void
   onNext: () => void
 }
 
 const InitForm = ({
   formData,
   onInputChange,
-  onDurationChange,
   onNext,
 }: InitFormProps) => (
   <>
@@ -77,8 +75,8 @@ const InitForm = ({
             Hours
           </label>
           <NumberInput
-            value={Math.floor(formData.duration / 60)}
-            onChange={(value) => onDurationChange(value.toString(), (formData.duration % 60).toString())}
+            value={formData.durationHours}
+            onChange={(value) => onInputChange('durationHours', value)}
             placeholder="Hours"
             min={0}
             max={23}
@@ -90,8 +88,8 @@ const InitForm = ({
             Minutes
           </label>
           <NumberInput
-            value={formData.duration % 60}
-            onChange={(value) => onDurationChange(Math.floor(formData.duration / 60).toString(), value.toString())}
+            value={formData.durationMinutes}
+            onChange={(value) => onInputChange('durationMinutes', value)}
             placeholder="Minutes"
             min={0}
             max={59}
@@ -135,7 +133,8 @@ export const InitScreen = () => {
   const [formData, setFormData] = useState<FormData>({
     title: '',
     context: '',
-    duration: 0,
+    durationHours: 0,
+    durationMinutes: 0,
     number_of_participants: 0
   })
 
@@ -162,30 +161,32 @@ export const InitScreen = () => {
 
   const [showSpecCard, setShowSpecCard] = useState(false)
 
-  const handleDurationChange = (hours: string, minutes: string) => {
-    const totalMinutes = (Number(hours) * 60) + Number(minutes)
-    handleInputChange('duration', totalMinutes)
-  }
-
   const handleNext = () => {
     setShowSpecCard(true)
   }
 
   const navigate = useNavigate();
 
+  const computeDuration = () => {
+    return formData.durationHours * 3600 + formData.durationMinutes * 60
+  }
+
   const handleSubmitSpecCard = async () => {
     try {
-      const response = await fetch(`http://${BACKEND_URL}/api/decision/`, {
+      const response = await fetch(`http://${import.meta.env.VITE_BACKEND_URL}/api/decision/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          title: formData.title,
+          context: formData.context,
+          duration: computeDuration(),
+          number_of_participants: formData.number_of_participants
+        })
       });
       const data = await response.json();
-
-      
-      // Format the link to be a relative path (e.g., /init)
+      localStorage.setItem(`organizer_of_decision_${data.id}`, "Yes");
       const formattedLink = data.link.replace(/^https?:\/\/[^/]+/, '');
       navigate(formattedLink, { state: { shareLink: data.link, isOwner: true } });
     } catch (error) {
@@ -194,9 +195,9 @@ export const InitScreen = () => {
   }
 
   // Helper to convert total minutes to hours/minutes
-  const getDurationObj = (totalMinutes: number) => ({
-    hours: Math.floor(totalMinutes / 60),
-    minutes: totalMinutes % 60
+  const getDurationObj = () => ({
+    hours: formData.durationHours,
+    minutes: formData.durationMinutes
   })
 
   return (
@@ -206,14 +207,13 @@ export const InitScreen = () => {
           <InitForm
             formData={formData}
             onInputChange={handleInputChange}
-            onDurationChange={handleDurationChange}
             onNext={handleNext}
           />
         ) : 
           <SpecCard
             decisionTitle={formData.title}
             decisionContext={formData.context}
-            duration={getDurationObj(formData.duration)}
+            duration={getDurationObj()}
             participants={formData.number_of_participants}
             handleCancel={() => setShowSpecCard(false)}
             handleSubmit={handleSubmitSpecCard}

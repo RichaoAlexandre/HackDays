@@ -10,7 +10,6 @@ interface SpecCardProps {
 }
 
 export const SpecCard = ({ decisionTitle, decisionContext, duration, participants, handleCancel, handleSubmit }: SpecCardProps) => {
-
     return (<div className="w-full max-w-2xl bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
         <div className="mb-8">
             <h1 className="text-2xl font-semibold text-gray-900 mb-3">

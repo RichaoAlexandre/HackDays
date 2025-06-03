@@ -157,3 +157,11 @@ def vote_creation(request, payload: VoteSchemaIn):
         }
     )
     return vote
+
+
+@router.get(
+    "decision/{id}/result/",
+)
+def decision_result(request, id: int):
+    decision = get_object_or_404(Decision, id=id)
+    return { "result": decision.result}

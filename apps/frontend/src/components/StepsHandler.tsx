@@ -4,7 +4,8 @@ import { ProposalScreen } from '../screens/ProposalScreen'
 import WaitScreen from '../screens/WaitScreen'
 import { useParams } from 'react-router'
 import { VotingScreen } from '../screens/VotingScreen'
-import { BACKEND_URL } from '../constants'
+import LoaderScreen from '../screens/LoaderScreen'
+import ResultScreen from '../screens/ResultScreen'
 
 export const StepsHandler = () => {
   const [step, setStep] = useState(1)
@@ -16,7 +17,7 @@ export const StepsHandler = () => {
   useEffect(() => {
     if (params.uuid) {
       // url of websocket: <url>/ws/decision/<decision_id>/current_step/
-      const wsUrl = `ws://${BACKEND_URL}/ws/decision/${params.uuid}/current_step/`;
+      const wsUrl = `ws://${import.meta.env.VITE_BACKEND_URL}/ws/decision/${params.uuid}/current_step/`;
 
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
@@ -58,7 +59,7 @@ export const StepsHandler = () => {
   useEffect(() => {
     const fetchDecision = async () => {
       try {
-        const response = await fetch(`http://${BACKEND_URL}/api/decision/${params.uuid}/`, {
+        const response = await fetch(`http://${import.meta.env.VITE_BACKEND_URL}/api/decision/${params.uuid}/`, {
           method: 'GET',
         });
         const data = await response.json();
@@ -72,21 +73,6 @@ export const StepsHandler = () => {
     }
   }, [params.uuid])
 
-  const triggerNextStep = async () => {
-    try {
-      const response = await fetch(`http://${BACKEND_URL}/api/decision/${params.uuid}/next_step/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-      const data = await response.json();
-      setStep(data.step);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  }
-
   const renderStep = () => {
     switch (step) {
       // case 1:   return <WaitScreen connexionNumber={connexionNumber} expectedUserNumber={decision.number_of_participants} />; // Wait screen could be the same for owner and user
@@ -96,15 +82,10 @@ export const StepsHandler = () => {
         titleLabel=' Waiting for the organiser to start the workshop'
         actionLabel='joined the workshop.'
       />; // Wait screen could be the same for owner and user
-      case 2: return <ProposalScreen />;
-      case 3: return <WaitScreen connexionNumber={connexionNumber}
-        expectedUserNumber={decision.number_of_participants}
-        triggerNextStep={triggerNextStep}
-        titleLabel=' Waiting for the collaboartors to make their proposals'
-        actionLabel='have made a prooposal.'
-      />; // Screen to wait before AI clustering
+      case 2: return <ProposalScreen decision={decision} />;
+      case 3: return <LoaderScreen />; // Screen to wait before AI clustering
       case 4: return <VotingScreen />; // Screen of votes
-      case 5: return <WaitScreen connexionNumber={connexionNumber} expectedUserNumber={decision.number_of_participants} />; // Screen of result
+      case 5: return <ResultScreen/>; // Screen of result
       default: return <JoinScreen />; // If the step is not beetwen 1-5, something may be wrong
     }
   }
@@ -112,6 +93,6 @@ export const StepsHandler = () => {
   return (
     <>
       {decision && renderStep()}
-      g    </>
+    </>
   )
 }
