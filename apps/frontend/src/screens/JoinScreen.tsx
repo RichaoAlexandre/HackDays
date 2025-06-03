@@ -11,7 +11,7 @@ export const JoinScreen = () => {
         </p>
 
         <button
-          className="px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
+          className="px-6 py-3 bg-[#000091] text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
           onClick={() => {}}
         >
           Join Workshop
