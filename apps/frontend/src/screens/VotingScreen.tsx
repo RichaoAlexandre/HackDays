@@ -3,6 +3,7 @@ import { FiMessageSquare } from "react-icons/fi";
 import { ProposalVoteModal } from "../components/ProposalVoteModal";
 import { CommentListModal } from "../components/CommentListModal";
 import { useParams } from "react-router";
+import { BACKEND_URL } from "../constants";
 
 type Vote = {
   type: "pro" | "against";
@@ -16,7 +17,6 @@ type Proposal = {
 };
 
 
-const BACKEND_URL = 'http://localhost:8000'
 
 export const VotingScreen = () => {
   const params = useParams()
@@ -31,7 +31,7 @@ export const VotingScreen = () => {
   useEffect(() => {
     if (params.uuid) {
       // url of websocket: <url>/ws/decision/<decision_id>/current_step/
-      const wsUrl = `ws://localhost:8000/ws/decision/${params.uuid}/votes/`;
+      const wsUrl = `ws://${BACKEND_URL}/ws/decision/${params.uuid}/votes/`;
   
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
@@ -100,7 +100,7 @@ export const VotingScreen = () => {
   useEffect(() => {
     const fetchProposals = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/api/decision/${params.uuid}/proposals/`, {
+        const response = await fetch(`http://${BACKEND_URL}/api/decision/${params.uuid}/proposals/`, {
           method: 'GET',
         });
         const data = await response.json();

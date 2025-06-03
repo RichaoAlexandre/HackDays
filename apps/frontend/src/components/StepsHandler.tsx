@@ -4,6 +4,7 @@ import { ProposalScreen } from '../screens/ProposalScreen'
 import WaitScreen from '../screens/WaitScreen'
 import { useParams } from 'react-router'
 import { VotingScreen } from '../screens/VotingScreen'
+import {BACKEND_URL} from '../constants'
 
 export const StepsHandler = () => {
   const [step, setStep] = useState(1)
@@ -15,7 +16,7 @@ export const StepsHandler = () => {
   useEffect(() => {
     if (params.uuid) {
       // url of websocket: <url>/ws/decision/<decision_id>/current_step/
-      const wsUrl = `ws://localhost:8000/ws/decision/${params.uuid}/current_step/`;
+      const wsUrl = `ws://${BACKEND_URL}/ws/decision/${params.uuid}/current_step/`;
   
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
@@ -57,7 +58,7 @@ export const StepsHandler = () => {
   useEffect(() => {
     const fetchDecision = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/api/decision/${params.uuid}/`, {
+        const response = await fetch(`http://${BACKEND_URL}/api/decision/${params.uuid}/`, {
           method: 'GET',
         });
         const data = await response.json();
